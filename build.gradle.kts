@@ -62,7 +62,7 @@ publishing {
         create<MavenPublication>("release") {
             groupId = "com.omnissolutio"
             artifactId = "omnis-solutio-payment-sdk-android"
-            version = "1.0.0"
+            version = "1.0.1"
 
             afterEvaluate {
                 from(components["release"])
