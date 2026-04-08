@@ -2,8 +2,12 @@ plugins {
     alias(libs.plugins.android.library)
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.compose)
-    id("maven-publish")
+    id("com.vanniktech.maven.publish") version "0.36.0"
+    id("signing")
 }
+
+group = "io.github.gllflplaystore"
+version = "1.0.1"
 
 android {
     namespace = "com.omnissolutio.paymentsdk"
@@ -15,36 +19,28 @@ android {
         consumerProguardFiles("consumer-rules.pro")
     }
 
-    buildFeatures {
-        compose = true
-    }
-
-    buildTypes {
-        release {
-            isMinifyEnabled = false
-            proguardFiles(
-                getDefaultProguardFile("proguard-android-optimize.txt"),
-                "proguard-rules.pro"
-            )
-        }
-    }
-
+    // Modern SDKs should target Java 17+
     compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_11
-        targetCompatibility = JavaVersion.VERSION_11
+        sourceCompatibility = JavaVersion.VERSION_17
+        targetCompatibility = JavaVersion.VERSION_17
     }
 
     kotlinOptions {
-        jvmTarget = "11"
+        jvmTarget = "17"
+    }
+
+    buildFeatures {
+        compose = true
     }
 }
+
+
 
 dependencies {
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.appcompat)
     implementation(libs.material)
 
-    // Compose (safe for SDKs)
     implementation(platform(libs.androidx.compose.bom))
     implementation(libs.androidx.compose.ui)
     implementation(libs.androidx.compose.material3)
@@ -53,32 +49,51 @@ dependencies {
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
 }
+mavenPublishing {
+    // FORCED S01 HOST: Required for all new io.github projects
+    publishToMavenCentral(true)
+    signAllPublications()
 
-/* =======================
-   PUBLISH CONFIG
-   ======================= */
-publishing {
-    publications {
-        create<MavenPublication>("release") {
-            groupId = "com.omnissolutio"
-            artifactId = "omnis-solutio-payment-sdk-android"
-            version = "1.0.1"
+    coordinates(
+        "io.github.gllflplaystore",
+        "omnis-solutio-payment-sdk-android",
+        "1.0.1"
+    )
 
-            afterEvaluate {
-                from(components["release"])
+    pom {
+        name.set("Omnis Solutio Payment SDK")
+        description.set("Android Kotlin SDK for payment gateway integration")
+        inceptionYear.set("2026")
+        url.set("https://github.com/gllflplaystore/omnis-solutio-payment-sdk-android")
+
+        licenses {
+            license {
+                name.set("The Apache Software License, Version 2.0")
+                url.set("https://www.apache.org/licenses/LICENSE-2.0.txt")
             }
         }
-    }
 
-    repositories {
-        maven {
-            name = "GitHubPackages"
-            url = uri("https://maven.pkg.github.com/gllflplaystore/omnis-solutio-payment-sdk-android")
-
-            credentials {
-                username = (project.findProperty("gpr.user") as String?) ?: System.getenv("GITHUB_USER")
-                password = (project.findProperty("gpr.token") as String?) ?: System.getenv("GITHUB_TOKEN")
+        developers {
+            developer {
+                id.set("gllflplaystore")
+                name.set("GLLFL")
+                url.set("https://github.com/gllflplaystore")
             }
         }
+
+        scm {
+            connection.set("scm:git:github.com/gllflplaystore/omnis-solutio-payment-sdk-android.git")
+            developerConnection.set("scm:git:ssh://github.com/gllflplaystore/omnis-solutio-payment-sdk-android.git")
+            url.set("https://github.com/gllflplaystore/omnis-solutio-payment-sdk-android")
+        }
     }
+}
+
+// ← ADD THIS ENTIRE BLOCK
+signing {
+    useInMemoryPgpKeys(
+        project.findProperty("signingInMemoryKeyId") as String?,
+        project.findProperty("signingInMemoryKey") as String?,
+        project.findProperty("signingInMemoryKeyPassword") as String?
+    )
 }
