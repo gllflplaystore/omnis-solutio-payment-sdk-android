@@ -57,7 +57,7 @@ mavenPublishing {
     coordinates(
         "io.github.gllflplaystore",
         "omnis-solutio-payment-sdk-android",
-        "1.0.1"
+        "1.0.2"
     )
 
     pom {
